@@ -1,0 +1,298 @@
+﻿<html>
+<head>
+<style>
+.slot
+{
+	background-color:#000000;
+	/* border:1px solid gray; */
+	width:90px;
+	height:90px;
+	float:left;
+	margin:10px;
+	text-align:center;
+	vertical-align:middle;
+	color:#000000;
+	
+	
+}
+#gameArea
+{
+width:560px;
+height:700px;
+/* border:1px solid red; */
+padding:10px;
+left:25%;
+top:12%;
+position:absolute;
+/* background-color:#000000; */
+}
+
+
+#mouseArea
+{
+	border: 1px solid green;
+	background-color:black;
+	position:absolute;
+	z-index:500;
+	opacity:0.7;
+}
+
+
+.bodyClass
+{
+background-color:#000000;
+}
+
+#info
+{
+color:#FFFFFF;
+display:none;
+}
+
+#gameSet
+{
+color:#FFFFFF;
+}
+</style>
+</head>
+
+<body class="bodyClass">
+<!--
+<img src="images/protoss_01.gif" width="50" height="50" id="img1" />
+-->
+<div id="mouseArea"></div>
+<div id="info"></div>
+<div id="gameSet">
+顯示熱鍵：<input type="checkbox" name="chkHotKeyDisplay" id="chkHotKeyDisplay" onchange="hotKeyDisplay(this.checked)">
+</div>
+<div id="gameArea">
+</div>
+
+<script>
+
+//常態變數
+var _protossPath = "images/protoss";
+var _protossUnitPath = _protossPath + "/units";
+var _protossBuildPath = _protossPath + "/building";
+
+var _bgBlackPic = "images/bg_black.gif";
+
+var picNo = 0;
+var pointer = 0;
+
+
+//事件註冊
+document.onkeydown=keyAtPost;
+document.onmousedown=mouseDown;
+document.onmouseup=mouseUp;
+document.onmousemove=mouseMove;
+isLeftClick = false;
+mouseX=0;
+mouseY=0;
+
+
+//json 資料
+var protossJSON = 
+{
+	"p001":"C",
+	"p002":"I",
+	"p003":"M",
+	"p004":"M",
+	"p005":"E",
+	"p006":"Z",
+	"p007":"E",
+	"p008":"S",
+	"p009":"D",
+	"p010":"T",
+	"p011":"C",
+	"p012":"A",
+	"p013":"B",
+	"p014":"I",
+	"p015":"C",
+	"p016":"X",
+	"p017":"V",
+	"p018":"L",
+	"p019":"O"
+
+}
+
+for(var i = 0; i <=29 ; i++)
+{
+	
+	var objDiv = document.createElement("div");
+	var objImg=document.createElement("img");
+	
+	picNo = strPad(getRandomNumber(1,19),3,'0');	
+	
+	objImg.src=_protossUnitPath + "/" + picNo + ".gif";
+	objImg.title=eval('protossJSON.p' + picNo);
+	
+	
+	objDiv.className="slot";	
+	objDiv.id = "slot_" + i;
+	
+	objDiv.appendChild(objImg);
+	objDiv.innerHTML += eval('protossJSON.p' + picNo);
+	
+	document.getElementById("gameArea").appendChild(objDiv);
+	//document.write(objDiv.id + "<br>");
+}
+
+
+
+
+
+
+function strPad(input, length, string) {
+    string = string || '0'; input = input + '';
+    return input.length >= length ? input : new Array(length - input.length + 1).join(string) + input;
+}
+
+function getRandomNumber(minNumber,maxNumber)
+{
+	return Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
+}
+
+
+
+
+
+
+function mouseMove(){
+
+	document.getElementById("info").innerHTML="目前座標x:" + event.clientX + "<br>" + "目前座標y:" + event.clientY + "<BR>";
+	document.getElementById("info").innerHTML+="記憶點x:" + mouseX + "<br>" + "記憶點y:" + mouseY;
+	
+
+	if(isLeftClick)
+	{
+		document.getElementById("mouseArea").style.display="";
+		
+		if(event.clientX > mouseX)
+		{
+			divLeft = mouseX;
+		}
+		else 
+		{
+			divLeft = event.clientX;
+		}
+	
+		if(event.clientY > mouseY)
+		{
+			divTop = mouseY;
+		}
+		else 
+		{
+			divTop = event.clientY;
+		}	
+		
+		divHeight = Math.abs(event.clientY - mouseY);	
+		divWidth = Math.abs(event.clientX - mouseX);
+		document.getElementById("info").innerHTML+="<br>" + "divHeight:" + divHeight + "<br>" + "divWidth:" + divWidth;
+		
+		document.getElementById("mouseArea").style.left = divLeft;
+		document.getElementById("mouseArea").style.top = divTop;
+		document.getElementById("mouseArea").style.height=divHeight;
+		document.getElementById("mouseArea").style.width=divWidth;
+		document.body.style.cursor = "default";
+	    window.event.cancelBubble = true;
+        window.event.returnValue = false;    
+	}
+}
+
+function mouseUp(e){ isLeftClick=false; document.getElementById("mouseArea").style.display="none"; }
+
+
+function mouseDown(e)
+{
+   switch (e.which) {
+        case 1:
+            //alert('Left mouse button pressed');
+			isLeftClick = true;
+			mouseX = event.clientX;
+			mouseY = event.clientY;			
+			//objDiv.style.width=event.clientX;
+			//objDiv.style.height=event.clientY;
+            break;
+        case 2:
+            //alert('Middle mouse button pressed');
+            break;
+        case 3:
+            //alert('Right mouse button pressed');
+            break;
+        default:
+            //alert('You have a strange mouse');
+    }
+}
+
+
+
+function keyAtPost(e){
+    var evt = window.event || e ;
+    var evt_key = evt.which != null ? evt.which : evt.keyCode ;
+    var GetDefine = 0 ;
+	var strCode = String.fromCharCode(evt_key);
+	
+		try
+		{
+		
+		destoryImg(strCode.toUpperCase());
+		
+		//alert(document.getElementById("img1"));
+		}
+		catch(e)
+		{
+			alert(e);
+		}
+	
+}
+
+function hotKeyDisplay(val)
+{
+	
+	var arrCSS = document.getElementsByClassName("slot");
+	
+	for(var i =0; i <arrCSS.length;i++)
+	{
+	
+		if(val)
+		{
+			arrCSS[i].style.color ="white";
+		}
+		else
+		{
+			arrCSS[i].style.color ="black";
+		}	
+	
+	}
+	
+
+}
+
+
+function destoryImg(strCode)
+{
+	
+	//alert(document.images.length);
+	//for(var i =0;i < document.images.length;i++)
+	if(document.images.length > pointer)
+	{
+		if(document.images[pointer].title == strCode)
+		{
+			//alert(typeof(document.images[i]));
+			//alert(i);
+			//document.images[i].src="";
+			document.images[pointer].src = _bgBlackPic;
+			document.images[pointer].title="";
+			pointer++;
+			//break;
+			//document.getElementById("gameArea").removeChild(document.getElementById("gameArea").childNodes[i]);
+		}
+	}
+	
+
+
+}
+</script>
+</body>
+</html>
